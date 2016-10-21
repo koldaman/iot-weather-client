@@ -15,6 +15,7 @@ private:
    int   _httpPort;
    char* _googleScriptMacroId;
    WiFiClientSecure _client;
+   double getVbat();
    void  (*_callback)(int httpResult);
    int parseHttpResult(String httpResultString);
 };

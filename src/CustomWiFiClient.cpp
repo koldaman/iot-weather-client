@@ -7,11 +7,20 @@
 #include <CustomWiFiClient.h>
 #include <Constants.h>
 
+// kalibrace ADC - podpora pro spravne cteni VCC (napeti)
+ADC_MODE(ADC_VCC);
+
 CustomWiFiClient::CustomWiFiClient() {
    WiFiClientSecure _client;
    _host = "script.google.com";
    _httpPort = 443;
    _googleScriptMacroId = Constants::MACRO_ID();
+}
+
+double CustomWiFiClient::getVbat() {
+  double vcc = ESP.getVcc();
+  vcc = vcc / 1000.0;
+  return vcc;
 }
 
 void CustomWiFiClient::sendData(float temp, float hum) {
@@ -41,6 +50,8 @@ void CustomWiFiClient::sendData(float temp, float hum) {
    url += temp;
    url += "&vlhkost=";
    url += hum;
+   url += "&vcc=";
+   url += getVbat();
 
    Serial.print("Requesting URL: ");
    Serial.println(url);
