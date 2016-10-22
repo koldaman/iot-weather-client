@@ -56,6 +56,8 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
+  blinker.stop();
+
   client.sentCallback(handleDataSent);
 
   CustomWiFiManager::start(&blinker);
