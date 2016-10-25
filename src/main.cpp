@@ -12,7 +12,7 @@
 const int DHTPin = 5;   // D1
 DHT dht(DHTPin, DHTTYPE);
 
-const long DEEP_SLEEP_TIME = 1*60*1000000; // 1 minuta
+const long DEEP_SLEEP_TIME = 15*60*1000000; // 15 minut
 
 const int LED_PIN = 14;   // D5
 Blink blinker(LED_PIN);

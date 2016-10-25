@@ -8,10 +8,19 @@
 #include <WiFiManager.h>          //https://github.com/tzapu/WiFiManager
 #include <CustomWiFiManager.h>
 #include <Blink.h>
+#include <Ticker.h>
 
 Blink* CustomWiFiManager::_blinker;
+Ticker ticker;
 
-// spousti se behem rezimu konfigurace
+// zavolej po udane dobe - resetuj se (eliminace chyby, kdy se zarizeni nepripoji k WiFi)
+void CustomWiFiManager::waitForConnectTimeout () {
+   Serial.println("Timeout to change WiFi settings. Trying again after reset...");
+   //reset and try again, or maybe put it to deep sleep
+   ESP.reset();
+   delay(1000);
+}
+
 void CustomWiFiManager::configModeCallback (WiFiManager *myWiFiManager) {
   Serial.println("Entered config mode");
   Serial.println(WiFi.softAPIP());
@@ -19,9 +28,11 @@ void CustomWiFiManager::configModeCallback (WiFiManager *myWiFiManager) {
   Serial.println(myWiFiManager->getConfigPortalSSID());
   // konfiguracni mod, blikej rychleji
   if (CustomWiFiManager::_blinker != NULL) {
-    CustomWiFiManager::_blinker->init({5, 100, 5, 100, 5, 3000}, 0);
+    CustomWiFiManager::_blinker->init({5, 300, 5, 300, 5, 10000}, 0);
     CustomWiFiManager::_blinker->start();
   }
+  // naplanuj restart
+  ticker.attach(CustomWiFiManager::WAIT_FOR_CONNECTION_TIMEOUT(), &CustomWiFiManager::waitForConnectTimeout);
 }
 
 void CustomWiFiManager::start(Blink* blinker) {
@@ -29,7 +40,7 @@ void CustomWiFiManager::start(Blink* blinker) {
   WiFiManager wifiManager;
 
   //reset settings - for testing
-  // wifiManager.resetSettings();
+  //wifiManager.resetSettings();
 
   //set callback that gets called when connecting to previous WiFi fails, and enters Access Point mode
   wifiManager.setAPCallback(&CustomWiFiManager::configModeCallback);
